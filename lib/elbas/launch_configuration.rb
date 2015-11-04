@@ -11,7 +11,9 @@ module Elbas
 
     def save(ami)
       info "Creating an EC2 Launch Configuration for AMI: #{ami.aws_counterpart.id}"
-      @aws_counterpart = autoscaling.launch_configurations.create(name, ami.aws_counterpart.id, instance_size, create_options)
+      options = create_options(ami)
+      _aws_launch_configuration = autoscaling_client.create_launch_configuration(options)
+      @aws_counterpart = autoscaling.launch_configurations[options[:launch_configuration_name]]
     end
 
     def attach_to_autoscale_group!
@@ -36,11 +38,14 @@ module Elbas
         fetch(:aws_autoscale_instance_size, 'm1.small')
       end
 
-      def create_options
+      def create_options(ami)
         _options = {
-          security_groups: base_ec2_instance.security_groups.to_a,
-          detailed_instance_monitoring: true,
-          associate_public_ip_address: true,
+          launch_configuration_name: name,
+          image_id: ami.aws_counterpart.id,
+          instance_id: base_ec2_instance.id,
+          instance_monitoring: { enabled: true },
+          ebs_optimized: fetch(:aws_launch_configuration_ebs_optimized, true),
+          associate_public_ip_address: fetch(:aws_launch_configuration_associate_public_ip_address, true)
         }
 
         if user_data = fetch(:aws_launch_configuration_user_data, nil)

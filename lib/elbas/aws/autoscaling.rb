@@ -9,6 +9,10 @@ module Elbas
         @_autoscaling ||= ::AWS::AutoScaling.new(credentials)
       end
 
+      def autoscaling_client
+        @_autoscaling_client ||= ::AWS::AutoScaling::Client.new(credentials)
+      end
+
       def autoscale_group
         @_autoscale_group ||= autoscaling.groups[autoscale_group_name]
       end
