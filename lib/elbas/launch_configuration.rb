@@ -31,7 +31,7 @@ module Elbas
     private
 
       def name
-        timestamp "ELBAS-#{environment}-LC"
+        timestamp "ELBAS-#{environment}-#{autoscale_group_name}-LC"
       end
 
       def instance_size
@@ -39,7 +39,7 @@ module Elbas
       end
 
       def create_options(ami)
-        _options = {
+        options = {
           launch_configuration_name: name,
           image_id: ami.aws_counterpart.id,
           instance_id: base_ec2_instance.id,
@@ -49,14 +49,14 @@ module Elbas
         }
 
         if user_data = fetch(:aws_launch_configuration_user_data, nil)
-          _options.merge user_data: user_data
+          options.merge user_data: user_data
         end
 
-        _options
+        options
       end
 
       def deployed_with_elbas?(lc)
-        lc.name =~ /ELBAS-#{environment}/
+        lc.name =~ /ELBAS-#{environment}-#{autoscale_group_name}/
       end
 
       def trash
