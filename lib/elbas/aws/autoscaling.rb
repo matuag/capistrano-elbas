@@ -20,7 +20,6 @@ module Elbas
       def autoscale_group_name
         fetch(:aws_autoscale_group)
       end
-
     end
   end
 end
