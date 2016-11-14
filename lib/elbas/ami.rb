@@ -3,6 +3,9 @@ module Elbas
     include Taggable
 
     def self.create(&block)
+      # To avoid race condition adding 60 seconds delay before
+      # starting AMi creation process
+      sleep(60)
       ami = new
       ami.cleanup do
         ami.save
